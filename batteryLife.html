@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<title>Battery life estimation</title>
+</head>
+
+<body>
+Hello
+
+<script type="text/javascript">
+	function getQueryParams(qs) {
+	qs = qs.split('+').join(' ');
+
+	var params = {},
+	    tokens,
+	    re = /[?&]?([^=]+)=([^&]*)/g;
+
+	while (tokens = re.exec(qs)) {
+		console.log(decodeURIComponent(tokens[1]))
+		console.log(decodeURIComponent(tokens[2]))
+		if(params[decodeURIComponent(tokens[1])] !== null && params[decodeURIComponent(tokens[1])] !== undefined)
+		    params[decodeURIComponent(tokens[1])] = [params[decodeURIComponent(tokens[1])], decodeURIComponent(tokens[2])];
+		else
+		    params[decodeURIComponent(tokens[1])] = decodeURIComponent(tokens[2]);
+	}
+
+	return params;
+}
+</script>
+
+<script type="text/javascript">
+	function Chain(){};
+	Chain.prototype = {
+		mah: null,
+		cycles: [],
+		parse: function(){
+			var mah = parseFloat(this.mah);
+			if(mah === NaN)
+				return false;
+			this.mah = mah;
+
+			var cycles = this.cycles;
+			for(var i = 0; i < cycles.length; i++){
+				var current = cycles[i].split(":")[0];
+				var duration = cycles[i].split(":")[1];
+
+				current = parseFloat(current);
+				duration = parseFloat(duration);
+				if(isNaN(current) || isNaN(duration)){
+					return false;
+				}
+				this.cycles[i] = {current: current, duration: duration};
+			}
+			return true;
+		}
+	};
+
+	var query = getQueryParams(document.location.search);
+
+	chain = new Chain();
+	chain.mah = query.mah;
+	chain.cycles = query.cycle;
+	var legalParameters = chain.parse();
+
+</script>
+</body>
+
+</html>
