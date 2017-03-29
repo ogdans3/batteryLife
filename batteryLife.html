@@ -3,10 +3,28 @@
 
 <head>
 	<title>Battery life estimation</title>
+
+	<style type="text/css">
+		#cycles div.wrapper{
+			margin-top: 5px;
+		}
+
+		#cycles div.wrapper input{
+			margin-left: 5px;
+		}
+
+	</style>
 </head>
 
 <body>
-Hello
+
+<button onclick = "addCycle()">Add cycle</button>
+<button onclick = "showExample()">Show example</button>
+<form>
+	<label>Battery capacity: <input type = "text" name = "mah" id = "mah"> mah</label>
+	<div id = "cycles">
+	</div>
+</form>
 
 <script type="text/javascript">
 	function getQueryParams(qs) {
@@ -17,8 +35,6 @@ Hello
 	    re = /[?&]?([^=]+)=([^&]*)/g;
 
 	while (tokens = re.exec(qs)) {
-		console.log(decodeURIComponent(tokens[1]))
-		console.log(decodeURIComponent(tokens[2]))
 		if(params[decodeURIComponent(tokens[1])] !== null && params[decodeURIComponent(tokens[1])] !== undefined)
 		    params[decodeURIComponent(tokens[1])] = [params[decodeURIComponent(tokens[1])], decodeURIComponent(tokens[2])];
 		else
@@ -30,10 +46,70 @@ Hello
 </script>
 
 <script type="text/javascript">
+	function addCycle(current, duration){
+		if(current === null || current === undefined)
+			current = "";
+		if(duration === null || duration === undefined)
+			duration = "";
+		
+
+		console.log("Add a cycle")
+		var cycles = document.getElementById("cycles");
+
+		var currentLabel = document.createElement("label");
+		var durationLabel = document.createElement("label");
+
+		var currentInput = document.createElement("input");
+		var durationInput = document.createElement("input");
+
+		currentInput.type = "text";
+		durationInput.type = "text";
+
+		currentInput.value = current;
+		durationInput.value = duration;
+
+		var currentExplanation = document.createElement("span");
+		var durationExplanation = document.createElement("span");
+
+		currentExplanation.innerHTML = "Current drawn:";
+		durationExplanation.innerHTML = "; Duration: ";
+
+		currentLabel.appendChild(currentExplanation);
+		durationLabel.appendChild(durationExplanation);
+
+		currentLabel.appendChild(currentInput);
+		durationLabel.appendChild(durationInput);
+
+		var currentUnit = document.createElement("span");
+		var durationUnit = document.createElement("span");
+
+		currentUnit.innerHTML = " mah";
+		durationUnit.innerHTML = " minutes";
+
+		currentLabel.appendChild(currentInput);
+		durationLabel.appendChild(durationInput);
+
+		currentLabel.appendChild(currentUnit);
+		durationLabel.appendChild(durationUnit);
+
+		var wrapper = document.createElement("div");
+		wrapper.className = "wrapper";
+
+		var wrapperTitle = document.createElement("div");
+//		wrapperTitle.innerHTML = "Cycle";
+		wrapper.appendChild(wrapperTitle);
+		wrapper.appendChild(currentLabel);
+		wrapper.appendChild(durationLabel);
+		cycles.appendChild(wrapper);
+	}
+</script>
+
+<script type="text/javascript">
 	function Chain(){};
 	Chain.prototype = {
 		mah: null,
 		cycles: [],
+
 		parse: function(){
 			var mah = parseFloat(this.mah);
 			if(mah === NaN)
@@ -53,16 +129,28 @@ Hello
 				this.cycles[i] = {current: current, duration: duration};
 			}
 			return true;
+		},
+
+		generate: function(){
+			document.getElementById("mah").value = this.mah;
+			for(var i = 0; i < this.cycles.length; i++){
+				addCycle(this.cycles[i].current, this.cycles[i].duration);
+			}
 		}
 	};
 
 	var query = getQueryParams(document.location.search);
 
-	chain = new Chain();
+	var chain = new Chain();
 	chain.mah = query.mah;
 	chain.cycles = query.cycle;
 	var legalParameters = chain.parse();
-
+	if(legalParameters === false){
+		chain.mah = null;
+		chain.cycles = [];
+	}else{
+		chain.generate();
+	}
 </script>
 </body>
 
