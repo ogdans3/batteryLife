@@ -1,0 +1,1 @@
+This project exists solely to estimate the battery life for a given battery and device cycles.
